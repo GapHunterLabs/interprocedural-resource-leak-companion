@@ -1,0 +1,44 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>dev.gaphunter.interproceduralresourceleakcompanion</id>
+    <name>Interprocedural Resource Leak Companion</name>
+    <vendor>Gap Hunter Labs</vendor>
+    <description><![CDATA[
+        <p>Flags a resource (JDBC or I/O stream) delegated to a helper
+        method that does NOT guarantee closing it on every path,
+        where the caller never closes it either -- a real
+        interprocedural resource leak (CWE-772), not the simple
+        never-touched-at-all case the platform's own bundled
+        inspection already covers.</p>
+        <p>Combines TWO techniques this catalog already proved
+        separately: the real, from-scratch Tarjan's SCC algorithm and
+        fixed-point summary computation from Log Injection Companion
+        (interprocedural) with the branch-merging path-sensitive
+        typestate engine from JDBC Double-Close Companion
+        (path-sensitive) -- applied together for the first time in
+        this catalog. A helper method's own "does it close this
+        parameter on every path" summary is itself computed
+        path-sensitively, then propagated across the whole project's
+        call graph via the same SCC-ordered fixed point.</p>
+        <p>Stated honestly: v0.1 only
+        `Connection`/`Statement`/`PreparedStatement`/
+        `CallableStatement`/`ResultSet`/`InputStream`/`OutputStream`/
+        `Reader`/`Writer`; only direct reference arguments (no
+        wrapping expression); a project with more than 3,000
+        analyzable methods skips analysis entirely.</p>
+        <p>Free. No license nags, no telemetry, no network calls.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection language="JAVA"
+            groupName="Interprocedural Resource Leak Companion"
+            displayName="Resource delegated to a method that doesn't guarantee closing it"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="dev.gaphunter.interproceduralresourceleakcompanion.inspection.InterproceduralResourceLeakInspection"/>
+        <notificationGroup id="Interprocedural Resource Leak Companion" displayType="BALLOON"/>
+    </extensions>
+</idea-plugin>
