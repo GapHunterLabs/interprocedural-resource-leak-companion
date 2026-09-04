@@ -1,5 +1,6 @@
 package dev.gaphunter.interproceduralresourceleakcompanion.detect
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor
@@ -29,6 +30,17 @@ import com.intellij.psi.util.PsiModificationTracker
  * boolean-reachability taint set) -- this is the interprocedural half
  * of this plugin's combination; [ResourceStateEngine] is the
  * path-sensitive half.
+ *
+ * **Cancellable, per catalog-wide precedent:** this computation runs
+ * inside a `LocalInspectionTool`'s read action, but a pure in-memory
+ * fixed-point loop is not automatically interruptible -- a large real
+ * project could otherwise block the read action uncancellably while
+ * the user keeps typing. [ProgressManager.checkCanceled] is called
+ * once per file during the initial scan and once per outer
+ * fixed-point iteration per SCC (same discipline as
+ * `interface-resource-close-divergence-companion`'s own analyzer,
+ * retrofitted here 2026-09-03 after a catalog-wide review found it
+ * missing).
  */
 object ProjectResourceCloseSummaryAnalyzer {
 
@@ -54,6 +66,7 @@ object ProjectResourceCloseSummaryAnalyzer {
 
         val allMethods = mutableListOf<PsiMethod>()
         for (psiFile in javaFiles) {
+            ProgressManager.checkCanceled()
             psiFile.accept(object : JavaRecursiveElementWalkingVisitor() {
                 override fun visitMethod(method: PsiMethod) {
                     super.visitMethod(method)
@@ -73,6 +86,7 @@ object ProjectResourceCloseSummaryAnalyzer {
         for (scc in sccsCalleesFirst) {
             var changed = true
             while (changed) {
+                ProgressManager.checkCanceled()
                 changed = false
                 for (method in scc) {
                     val previous = summaries[method]

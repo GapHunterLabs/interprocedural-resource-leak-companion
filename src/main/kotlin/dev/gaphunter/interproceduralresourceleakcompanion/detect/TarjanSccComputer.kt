@@ -1,5 +1,7 @@
 package dev.gaphunter.interproceduralresourceleakcompanion.detect
 
+import com.intellij.openapi.progress.ProgressManager
+
 /**
  * Real Tarjan's Strongly Connected Components algorithm -- same
  * from-scratch, iterative (not recursive, so a deep real call graph
@@ -8,6 +10,12 @@ package dev.gaphunter.interproceduralresourceleakcompanion.detect
  * catalog's "no shared library between plugin repos" convention.
  * [compute] returns each SCC in an order where every SCC a given SCC
  * calls INTO already appears EARLIER -- callees before callers.
+ *
+ * Calls [ProgressManager.checkCanceled] once per traversal step so a
+ * large real call graph can't block the read action uncancellably --
+ * same discipline as `interface-resource-close-divergence-companion`'s
+ * copy of this same class (retrofitted here 2026-09-03 after a
+ * catalog-wide review found it missing).
  */
 class TarjanSccComputer<T>(private val graph: Map<T, List<T>>) {
 
@@ -32,6 +40,7 @@ class TarjanSccComputer<T>(private val graph: Map<T, List<T>>) {
         callStack.addLast(beginNode(start))
 
         while (callStack.isNotEmpty()) {
+            ProgressManager.checkCanceled()
             val frame = callStack.last()
             val v = frame.node
             val neighbors = graph[v].orEmpty()
