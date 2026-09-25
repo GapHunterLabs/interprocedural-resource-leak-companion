@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+
+### Fixed
+
+- Review/star CTA now links to this plugin's own Marketplace
+  reviews page instead of the vendor's generic plugin list.
+
 ## [0.1.1]
 
 ### Fixed
@@ -26,6 +33,7 @@
   (CWE-772), deliberately gated to never duplicate the platform's own
   bundled leak inspection.
 
-[Unreleased]: https://github.com/GapHunterLabs/interprocedural-resource-leak-companion/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/GapHunterLabs/interprocedural-resource-leak-companion/compare/0.1.2...HEAD
+[0.1.2]: https://github.com/GapHunterLabs/interprocedural-resource-leak-companion/compare/0.1.1...0.1.2
 [0.1.1]: https://github.com/GapHunterLabs/interprocedural-resource-leak-companion/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/GapHunterLabs/interprocedural-resource-leak-companion/commits/0.1.0
