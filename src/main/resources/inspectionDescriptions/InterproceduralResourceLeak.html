@@ -1,0 +1,9 @@
+<html>
+<body>
+Reports a resource (a JDBC object or an I/O stream) passed to a helper method that does not close it on every
+path, when the caller does not close it either.
+<!-- tooltip end -->
+<p>This is a leak across method boundaries (CWE-772). The platform's own inspection covers resources that are never
+closed anywhere; this one follows the resource into the methods it is passed to.</p>
+</body>
+</html>
